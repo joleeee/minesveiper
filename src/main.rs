@@ -10,7 +10,7 @@ enum Tile {
 
 impl From<&Tile> for &'static str {
     fn from(t: &Tile) -> Self {
-        const CHARS: [&'static str; 9] = ["⬜", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣"];
+        const CHARS: [&str; 9] = ["⬜", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣"];
         match t {
             Tile::Empty(v) => CHARS[*v as usize],
             Tile::Bomb => "💣",
@@ -97,8 +97,8 @@ impl Grid<Tile> {
         let y = rng.gen_range(0..self.height);
 
         // Ugly hack to only reveal empty pieces
-        if let Err(_) = self.reveal(y, x) {
-            self.reveal_rnd();
+        if self.reveal(y, x).is_err() {
+            self.reveal_rnd(); // try again
         }
     }
 
@@ -106,19 +106,19 @@ impl Grid<Tile> {
     fn reveal(&mut self, y: usize, x: usize) -> Result<(), ()> {
         match self.inner[y][x] {
             Tile::Bomb => {
-                    return Err(());
-            },
+                return Err(());
+            }
             Tile::Empty(v) => {
                 if v != 0 {
                     return Err(());
                 }
-            },
+            }
         }
 
         let mut q = std::collections::vec_deque::VecDeque::new();
         let mut been = vec![vec![false; self.width]; self.height];
 
-        q.push_back((y,x));
+        q.push_back((y, x));
         been[y][x] = true;
 
         while !q.is_empty() {
@@ -156,7 +156,7 @@ impl Grid<Tile> {
                             }
                             been[i][j] = true;
 
-                            q.push_back((i,j));
+                            q.push_back((i, j));
                         }
                     }
                 }
