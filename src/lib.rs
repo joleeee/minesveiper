@@ -4,7 +4,7 @@ use rand::Rng;
 
 #[derive(Clone)]
 pub enum Tile {
-    Empty(u32),
+    Empty(u8),
     Bomb,
 }
 
